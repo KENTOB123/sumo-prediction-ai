@@ -1,0 +1,118 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  isPremium Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  predictions Prediction[]
+  payments    Payment[]
+
+  @@map("users")
+}
+
+model Rikishi {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  shikona     String   @unique
+  rank        String
+  stable      String
+  height      Int
+  weight      Int
+  birthDate   DateTime
+  debutDate   DateTime
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // 対戦成績
+  winsAsWinner   MatchResult[] @relation("Winner")
+  lossesAsLoser  MatchResult[] @relation("Loser")
+  // 予測
+  predictionsAsWinner   Prediction[] @relation("Winner")
+  predictionsAsLoser    Prediction[] @relation("Loser")
+  // 統計
+  stats RikishiStats?
+
+  @@map("rikishi")
+}
+
+model MatchResult {
+  id          String   @id @default(cuid())
+  winnerId    String
+  loserId     String
+  tournament  String   // 場所名（例：2024年1月場所）
+  day         Int      // 何日目
+  technique   String?  // 決まり手
+  duration    Int?     // 取組時間（秒）
+  createdAt   DateTime @default(now())
+
+  winner Rikishi @relation("Winner", fields: [winnerId], references: [id])
+  loser  Rikishi @relation("Loser", fields: [loserId], references: [id])
+
+  @@map("match_results")
+}
+
+model Prediction {
+  id          String   @id @default(cuid())
+  userId      String
+  winnerId    String
+  loserId     String
+  winProbability Float  // 勝率（0.0-1.0）
+  confidence  Float    // 信頼度（0.0-1.0）
+  factors     Json     // 予測に使用した要因
+  tournament  String   // 場所名
+  day         Int      // 何日目
+  createdAt   DateTime @default(now())
+
+  user    User     @relation(fields: [userId], references: [id])
+  winner  Rikishi  @relation("Winner", fields: [winnerId], references: [id])
+  loser   Rikishi  @relation("Loser", fields: [loserId], references: [id])
+
+  @@map("predictions")
+}
+
+model Payment {
+  id          String   @id @default(cuid())
+  userId      String
+  stripePaymentId String @unique
+  amount      Int      // 金額（円）
+  status      String   // pending, succeeded, failed
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("payments")
+}
+
+model RikishiStats {
+  id          String   @id @default(cuid())
+  rikishiId   String   @unique
+  totalWins   Int      @default(0)
+  totalLosses Int      @default(0)
+  winRate     Float    @default(0)
+  currentStreak Int    @default(0)
+  bestStreak  Int      @default(0)
+  tournamentWins Int   @default(0)
+  tournamentRunnerUps Int @default(0)
+  lastUpdated DateTime @default(now())
+
+  rikishi Rikishi @relation(fields: [rikishiId], references: [id])
+
+  @@map("rikishi_stats")
+} 
