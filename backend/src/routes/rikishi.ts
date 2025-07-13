@@ -17,7 +17,7 @@ router.get('/', async (req, res) => {
           }
         }
       },
-      orderBy: { name: 'asc' }
+      orderBy: { shikona: 'asc' }
     });
 
     res.json(rikishi);
@@ -120,7 +120,6 @@ router.get('/search/:query', async (req, res) => {
     const rikishi = await prisma.rikishi.findMany({
       where: {
         OR: [
-          { name: { contains: query, mode: 'insensitive' } },
           { shikona: { contains: query, mode: 'insensitive' } },
           { stable: { contains: query, mode: 'insensitive' } }
         ],

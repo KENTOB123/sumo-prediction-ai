@@ -57,8 +57,8 @@ export async function predictMatch(
     // ランクの優位性を計算
     const rankAdvantage = calculateRankAdvantage(winner.rank, loser.rank);
 
-    // 経験の優位性を計算
-    const experienceAdvantage = calculateExperienceAdvantage(winner.debutDate, loser.debutDate);
+    // 経験の優位性を計算（年齢ベース）
+    const experienceAdvantage = calculateExperienceAdvantage(winner.age, loser.age);
 
     // 体格の優位性を計算
     const physicalAdvantage = calculatePhysicalAdvantage(winner, loser);
@@ -157,20 +157,15 @@ function calculateRankAdvantage(winnerRank: string, loserRank: string): number {
   return Math.tanh(difference * 0.1); // -1 から 1 の範囲に正規化
 }
 
-function calculateExperienceAdvantage(winnerDebut: Date, loserDebut: Date): number {
-  const winnerExperience = Date.now() - winnerDebut.getTime();
-  const loserExperience = Date.now() - loserDebut.getTime();
-  
-  const difference = winnerExperience - loserExperience;
-  const yearsDifference = difference / (1000 * 60 * 60 * 24 * 365);
-  
-  return Math.tanh(yearsDifference * 0.2); // -1 から 1 の範囲に正規化
+function calculateExperienceAdvantage(winnerAge: number, loserAge: number): number {
+  const ageDifference = winnerAge - loserAge;
+  return Math.tanh(ageDifference * 0.1); // -1 から 1 の範囲に正規化
 }
 
 function calculatePhysicalAdvantage(winner: any, loser: any): number {
   // 身長と体重の組み合わせで体格優位性を計算
-  const heightAdvantage = (winner.height - loser.height) / 200; // 身長差を正規化
-  const weightAdvantage = (winner.weight - loser.weight) / 100; // 体重差を正規化
+  const heightAdvantage = (winner.height_cm - loser.height_cm) / 200; // 身長差を正規化
+  const weightAdvantage = (winner.weight_kg - loser.weight_kg) / 100; // 体重差を正規化
   
   return Math.tanh((heightAdvantage + weightAdvantage) * 0.5);
 }

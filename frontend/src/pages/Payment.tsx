@@ -2,7 +2,7 @@ import { usePayment } from '../contexts/PaymentContext';
 import { Check, Crown } from 'lucide-react';
 
 const Payment = () => {
-  const { plans, isLoading, createPaymentSession } = usePayment();
+  const { isLoading, createPaymentSession } = usePayment();
 
   const handleSubscribe = async (planId: string) => {
     try {

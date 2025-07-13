@@ -1,7 +1,7 @@
 import { ReactNode } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { Crown, Home, Users, BarChart3, LogOut, LogIn, UserPlus } from 'lucide-react'
+import { Crown, Home, Users, BarChart3, LogOut, LogIn, UserPlus, History, TrendingUp } from 'lucide-react'
 
 interface LayoutProps {
   children: ReactNode
@@ -17,6 +17,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     ...(user ? [
       { name: 'ダッシュボード', href: '/dashboard', icon: BarChart3 },
       { name: '予測', href: '/predictions', icon: BarChart3 },
+      { name: '予測履歴', href: '/predictions/history', icon: History },
+      { name: '統計', href: '/predictions/stats', icon: TrendingUp },
     ] : []),
   ]
 

@@ -2,6 +2,11 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import Stripe from 'stripe';
 import { PrismaClient } from '@prisma/client';
+import { Request } from 'express';
+
+interface AuthenticatedRequest extends Request {
+  user?: any;
+}
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -10,7 +15,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 });
 
 // 認証ミドルウェア
-const authenticateToken = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+const authenticateToken = (req: AuthenticatedRequest, res: express.Response, next: express.NextFunction) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
   
   if (!token) {
@@ -65,9 +70,9 @@ router.get('/plans', async (req, res) => {
 });
 
 // 支払いセッションを作成
-router.post('/create-session', authenticateToken, async (req, res) => {
+router.post('/create-session', authenticateToken, async (req: AuthenticatedRequest, res) => {
   try {
-    const userId = (req as any).user.userId;
+    const userId = req.user!.userId;
     const { planId } = req.body;
 
     const user = await prisma.user.findUnique({
@@ -209,9 +214,9 @@ async function handlePaymentFailure(paymentIntent: Stripe.PaymentIntent) {
 }
 
 // 支払い履歴を取得
-router.get('/history', authenticateToken, async (req, res) => {
+router.get('/history', authenticateToken, async (req: AuthenticatedRequest, res) => {
   try {
-    const userId = (req as any).user.userId;
+    const userId = req.user!.userId;
 
     const payments = await prisma.payment.findMany({
       where: { userId },

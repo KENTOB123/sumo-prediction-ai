@@ -12,6 +12,7 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    strictPort: true, // ポートが使用中の場合はエラーで停止
     proxy: {
       '/api': {
         target: 'http://localhost:8000',

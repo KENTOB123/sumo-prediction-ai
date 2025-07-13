@@ -26,7 +26,7 @@ const Register = () => {
     setIsLoading(true);
 
     try {
-      await register(name, email, password);
+      await register(email, password, name);
       toast.success('アカウントが作成されました！');
       navigate('/dashboard');
     } catch (error) {

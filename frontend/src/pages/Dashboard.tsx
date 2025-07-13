@@ -5,8 +5,6 @@ import { usePayment } from '../contexts/PaymentContext';
 import { 
   Trophy, 
   TrendingUp, 
-  Users, 
-  Calendar,
   Crown,
   Star,
   ArrowRight,

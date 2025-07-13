@@ -7,12 +7,15 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import Predictions from './pages/Predictions'
+import PredictionHistory from './pages/PredictionHistory'
+import PredictionStats from './pages/PredictionStats'
 import RikishiList from './pages/RikishiList'
 import RikishiDetail from './pages/RikishiDetail'
 import Payment from './pages/Payment'
 import PaymentSuccess from './pages/PaymentSuccess'
 import PaymentCancel from './pages/PaymentCancel'
 import ProtectedRoute from './components/ProtectedRoute'
+import { Toaster } from 'react-hot-toast'
 
 function App() {
   return (
@@ -39,6 +42,22 @@ function App() {
                 </ProtectedRoute>
               } 
             />
+            <Route 
+              path="/predictions/history" 
+              element={
+                <ProtectedRoute>
+                  <PredictionHistory />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/predictions/stats" 
+              element={
+                <ProtectedRoute>
+                  <PredictionStats />
+                </ProtectedRoute>
+              } 
+            />
             <Route path="/rikishi" element={<RikishiList />} />
             <Route path="/rikishi/:id" element={<RikishiDetail />} />
             <Route 
@@ -53,6 +72,7 @@ function App() {
             <Route path="/payment/cancel" element={<PaymentCancel />} />
           </Routes>
         </Layout>
+        <Toaster position="top-right" />
       </PaymentProvider>
     </AuthProvider>
   )

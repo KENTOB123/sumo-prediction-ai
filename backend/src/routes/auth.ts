@@ -13,9 +13,15 @@ router.post('/register', [
   body('password').isLength({ min: 6 }).withMessage('パスワードは6文字以上で入力してください'),
   body('name').notEmpty().withMessage('名前を入力してください')
 ], async (req: Request, res: Response) => {
+  console.log('📝 登録リクエスト受信:', {
+    body: req.body,
+    headers: req.headers
+  });
+  
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('❌ バリデーションエラー:', errors.array());
       return res.status(400).json({ errors: errors.array() });
     }
 
@@ -61,7 +67,7 @@ router.post('/register', [
       }
     });
   } catch (error) {
-    console.error('登録エラー:', error);
+    console.error('❌ 登録エラー:', error);
     res.status(500).json({ error: 'ユーザー登録中にエラーが発生しました' });
   }
 });

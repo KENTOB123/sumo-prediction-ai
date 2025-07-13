@@ -96,6 +96,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // 登録
   const registerMutation = useMutation(
     async ({ email, password, name }: { email: string; password: string; name: string }) => {
+      console.log('送信データ:', { email, password, name });
       const response = await api.post('/auth/register', { email, password, name })
       return response.data
     },

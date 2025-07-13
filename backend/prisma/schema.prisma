@@ -21,20 +21,29 @@ model User {
 
   predictions Prediction[]
   payments    Payment[]
+  predictionStats UserPredictionStats?
 
   @@map("users")
 }
 
 model Rikishi {
   id          String   @id @default(cuid())
-  name        String   @unique
-  shikona     String   @unique
-  rank        String
-  stable      String
-  height      Int
-  weight      Int
-  birthDate   DateTime
-  debutDate   DateTime
+  shikona     String   @unique  // 四股名（例：豊昇龍）
+  rank        String   // 階級（Y, O, S, K, M, J）
+  stable      String   // 部屋名
+  age         Int      // 年齢
+  height_cm   Int      // 身長（cm）
+  weight_kg   Int      // 体重（kg）
+  preferred_kimarite Json      // 得意技（配列）
+  career_record Json   // 通算成績 {wins, losses, draws}
+  yusho       Int      @default(0)  // 優勝回数
+  special_prizes Json  // 三賞 {gino, kanto, shukun}
+  kinboshi    Int      @default(0)  // 金星数
+  last_3_basho Json    // 過去3場所の成績
+  current_streak Json  // 現在の連続記録 {type, value}
+  elo         Int      @default(1500)  // ELOレーティング
+  head2head_vs_next Json? // 次戦相手との対戦成績
+  injury_status String @default("healthy")  // 怪我状況
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -45,6 +54,7 @@ model Rikishi {
   // 予測
   predictionsAsWinner   Prediction[] @relation("Winner")
   predictionsAsLoser    Prediction[] @relation("Loser")
+  predictionsAsActualWinner Prediction[] @relation("ActualWinner")
   // 統計
   stats RikishiStats?
 
@@ -75,13 +85,24 @@ model Prediction {
   winProbability Float  // 勝率（0.0-1.0）
   confidence  Float    // 信頼度（0.0-1.0）
   factors     Json     // 予測に使用した要因
-  tournament  String   // 場所名
+  tournament  String   // 場所名（例：2025.05）
   day         Int      // 何日目
   createdAt   DateTime @default(now())
+  
+  // 予測結果関連
+  actualWinnerId String?  // 実際の勝者ID
+  isCorrect      Boolean? // 予測が的中したか
+  resultRecordedAt DateTime? // 結果記録日時
+  
+  // 追加フィールド
+  predictedTechnique String?  // 予測決まり手
+  matchDuration Int?          // 予測取組時間（秒）
+  confidenceFactors Json?     // 信頼度の詳細要因
 
   user    User     @relation(fields: [userId], references: [id])
   winner  Rikishi  @relation("Winner", fields: [winnerId], references: [id])
   loser   Rikishi  @relation("Loser", fields: [loserId], references: [id])
+  actualWinner Rikishi? @relation("ActualWinner", fields: [actualWinnerId], references: [id])
 
   @@map("predictions")
 }
@@ -115,4 +136,20 @@ model RikishiStats {
   rikishi Rikishi @relation(fields: [rikishiId], references: [id])
 
   @@map("rikishi_stats")
+}
+
+// ユーザーの予測統計
+model UserPredictionStats {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  totalPredictions Int @default(0)
+  correctPredictions Int @default(0)
+  accuracy    Float    @default(0)
+  currentStreak Int    @default(0)
+  bestStreak  Int      @default(0)
+  lastUpdated DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("user_prediction_stats")
 } 
